@@ -11,7 +11,7 @@ import AEXML
 
 public final class EPUBParser: EPUBParserProtocol {
 
-    typealias XMLElement = AEXMLElement
+    public typealias XMLElement = AEXMLElement
 
     private let archiveService: EPUBArchiveService
     private let spineParser: EPUBSpineParser
@@ -38,7 +38,10 @@ public final class EPUBParser: EPUBParserProtocol {
         var tableOfContents: EPUBTableOfContents
         delegate?.parser(self, didBeginParsingDocumentAt: path)
         do {
-            directory = try unzip(archiveAt: path)
+            var isDirectory: ObjCBool = false
+            FileManager.default.fileExists(atPath: path.path, isDirectory: &isDirectory)
+            
+            directory = isDirectory.boolValue ? path : try unzip(archiveAt: path)
             delegate?.parser(self, didUnzipArchiveTo: directory)
 
             let contentService = try EPUBContentServiceImplementation(directory)
@@ -75,24 +78,24 @@ public final class EPUBParser: EPUBParserProtocol {
 
 extension EPUBParser: EPUBParsable {
 
-    func unzip(archiveAt path: URL) throws -> URL {
-        return try archiveService.unarchive(archive: path)
+    public func unzip(archiveAt path: URL) throws -> URL {
+        try archiveService.unarchive(archive: path)
     }
 
-    func getSpine(from xmlElement: XMLElement) -> EPUBSpine {
-        return spineParser.parse(xmlElement)
+    public func getSpine(from xmlElement: XMLElement) -> EPUBSpine {
+        spineParser.parse(xmlElement)
     }
 
-    func getMetadata(from xmlElement: XMLElement) -> EPUBMetadata {
-        return metadataParser.parse(xmlElement)
+    public func getMetadata(from xmlElement: XMLElement) -> EPUBMetadata {
+        metadataParser.parse(xmlElement)
     }
 
-    func getManifest(from xmlElement: XMLElement) -> EPUBManifest {
-        return manifestParser.parse(xmlElement)
+    public func getManifest(from xmlElement: XMLElement) -> EPUBManifest {
+        manifestParser.parse(xmlElement)
     }
 
-    func getTableOfContents(from xmlElement: XMLElement) -> EPUBTableOfContents {
-        return tableOfContentsParser.parse(xmlElement)
+    public func getTableOfContents(from xmlElement: XMLElement) -> EPUBTableOfContents {
+        tableOfContentsParser.parse(xmlElement)
     }
 
 }
